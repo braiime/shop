@@ -35,22 +35,63 @@
         <section id="products" class="featured-products">
             <h2>المنتجات المميزة</h2>
             <div class="product-grid">
-                <!-- Products will be loaded here from Firebase -->
-                <div class="loading">جاري تحميل المنتجات...</div>
+                <div class="product-card">
+                    <img src="./images/product.jpg" alt="المنتج">
+                    <h3>المنتج</h3>
+                    <p>2500 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
+                <div class="product-card">
+                    <img src="./images/product.jpg" alt="المنتج">
+                    <h3>المنتج</h3>
+                    <p>5000 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
+                <div class="product-card">
+                    <img src="./images/product.jpg" alt="المنتج">
+                    <h3>المنتج</h3>
+                    <p>1800 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
             </div>
         </section>
     </main>
 
     <footer>
-        <p>جميع الحقوق محفوظة لS shop &copy; 2024</p>
+        <p>
+            <span>Copyright &copy; 2025</span>
+            <span>S shop</span>
+            <span>|</span>
+            <a href="https://instagram.com/braiime" target="_blank">@braiime</a>
+            <span>|</span>
+            <span>All Rights Reserved</span>
+        </p>
     </footer>
 
     <div class="modal" id="contactModal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>تفاصيل الطلب</h2>
+            <p class="welcome-note">
+                سنتصل بك فور رؤية طلبك! مرحباً بك!
+                <br>
+                <span class="phone-notice" style="color: red;">
+                    اذا لم يتم تلقي الرد خلال 24 ساعة يمكنك الاتصال بنا على الرقم: 
+                    <span id="phoneNumber">0123456789</span>
+                    <div style="display: inline-block; position: relative;">
+                        <button onclick="copyPhoneNumber()" style="padding: 4px 8px; margin-right: 5px; cursor: pointer; background: none; border: none; color: #808080;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <span id="copyMessage" style="margin-right: 5px; background: #4CAF50; color: white; padding: 1px 4px; border-radius: 0; font-size: 10px; display: none;">
+                        تم
+                    </span>
+                </span>
+            </p>
             <form class="order-form" action="https://formsubmit.co/tox1c0contact@gmail.com" method="POST">
+
                 <input type="hidden" name="_subject" value="طلب جديد من S shop!">
+<input type="hidden" name="form-name" value="order">
                 <input type="hidden" name="Product" id="productName">
                 <div class="form-group">
                     <input type="text" name="Name" placeholder="اسمك الكامل" required>
@@ -69,56 +110,7 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcvNeUqTlVQa3OdaUICtjrX1rMb7SrJ_c",
-            authDomain: "fir-shop-63c93.firebaseapp.com",
-            projectId: "fir-shop-63c93",
-            storageBucket: "fir-shop-63c93.firebasestorage.app",
-            messagingSenderId: "1019998714130",
-            appId: "1:1019998714130:web:9a9b169fe5081d81af1bcb"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Load products from Firebase
-        async function loadProducts() {
-            const productsDiv = document.querySelector('.product-grid');
-            try {
-                const snapshot = await db.collection('products').get();
-                
-                if (snapshot.empty) {
-                    productsDiv.innerHTML = '<div class="no-products">لا توجد منتجات متاحة حالياً</div>';
-                    return;
-                }
-
-                productsDiv.innerHTML = snapshot.docs.map(doc => {
-                    const product = doc.data();
-                    return `
-                        <div class="product-card">
-                            <img src="${product.image}" alt="${product.title}" onerror="this.src='https://via.placeholder.com/200x200?text=صورة+غير+متوفرة'">
-                            <h3>${product.title}</h3>
-                            <p>${product.price} دج</p>
-                            <button class="add-to-cart">شراء</button>
-                        </div>
-                    `;
-                }).join('');
-
-                // Reattach event listeners
-                attachBuyButtonListeners();
-            } catch (error) {
-                console.error("Error loading products:", error);
-                productsDiv.innerHTML = '<div class="error">حدث خطأ في تحميل المنتجات</div>';
-            }
-        }
-
-        // Initial load
-        loadProducts();
-
         function attachBuyButtonListeners() {
             const buyButtons = document.querySelectorAll('.add-to-cart');
             const modal = document.getElementById('contactModal');
@@ -148,6 +140,23 @@
         function scrollToProducts() {
             document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
         }
+
+        function copyPhoneNumber() {
+            const phoneNumber = document.getElementById('phoneNumber').textContent;
+            const copyMessage = document.getElementById('copyMessage');
+            
+            navigator.clipboard.writeText(phoneNumber).then(() => {
+                copyMessage.style.display = 'block';
+                setTimeout(() => {
+                    copyMessage.style.display = 'none';
+                }, 2000); // Hide after 2 seconds
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        // Call attachBuyButtonListeners when the page loads
+        document.addEventListener('DOMContentLoaded', attachBuyButtonListeners);
     </script>
 </body>
 </html> 
