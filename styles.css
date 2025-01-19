@@ -121,6 +121,8 @@ button:hover {
 
 .product-card img {
     width: 100%;
+    height: 200px;
+    object-fit: cover;
     border-radius: 5px;
     margin-bottom: 1rem;
 }
@@ -316,4 +318,25 @@ footer {
 
 .delete-btn:hover {
     background-color: #c82333;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.no-products {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: #dc3545;
+    font-size: 1.2rem;
 } 
