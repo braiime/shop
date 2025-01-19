@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="logo.jpg" alt="شعار S shop">
+                <span>S shop</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#products">المنتجات</a></li>
+                <li><a href="#about">حول</a></li>
+                <li><a href="#contact">اتصل بنا</a></li>
+            </ul>
+            <button class="cart-btn">السلة (0)</button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>مرحباً بكم في S shop</h1>
+            <p>اكتشف منتجاتنا المميزة</p>
+            <button class="shop-now">تسوق الآن</button>
+        </section>
+
+        <section class="featured-products">
+            <h2>المنتجات المميزة</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="p1.jpg" alt="المنتج 1">
+                    <h3>المنتج 1</h3>
+                    <p>99.99 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
+                <div class="product-card">
+                    <img src="p2.jpg" alt="المنتج 2">
+                    <h3>المنتج 2</h3>
+                    <p>79.99 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
+                <div class="product-card">
+                    <img src="p3.jpg" alt="المنتج 3">
+                    <h3>المنتج 3</h3>
+                    <p>129.99 دج</p>
+                    <button class="add-to-cart">شراء</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>جميع الحقوق محفوظة لS shop &copy; 2024</p>
+    </footer>
+
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>تفاصيل الطلب</h2>
+            <form class="order-form" action="https://formsubmit.co/tox1c0contact@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="طلب جديد من S shop!">
+                <input type="hidden" name="Product" id="productName">
+                <div class="form-group">
+                    <input type="text" name="Name" placeholder="اسمك الكامل" required>
+                </div>
+                <div class="form-group">
+                    <input type="tel" name="Phone" placeholder="رقم الهاتف" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" name="Address" placeholder="عنوان التوصيل" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" name="Quantity" placeholder="الكمية" min="1" required>
+                </div>
+                <button type="submit" class="submit-btn">تأكيد الطلب</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcvNeUqTlVQa3OdaUICtjrX1rMb7SrJ_c",
+            authDomain: "fir-shop-63c93.firebaseapp.com",
+            projectId: "fir-shop-63c93",
+            storageBucket: "fir-shop-63c93.firebasestorage.app",
+            messagingSenderId: "1019998714130",
+            appId: "1:1019998714130:web:9a9b169fe5081d81af1bcb"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Load products from Firebase
+        async function loadProducts() {
+            const productsDiv = document.querySelector('.product-grid');
+            const snapshot = await db.collection('products').get();
+            
+            productsDiv.innerHTML = snapshot.docs.map(doc => {
+                const product = doc.data();
+                return `
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.title}">
+                        <h3>${product.title}</h3>
+                        <p>${product.price} دج</p>
+                        <button class="add-to-cart">شراء</button>
+                    </div>
+                `;
+            }).join('');
+
+            // Reattach event listeners
+            attachBuyButtonListeners();
+        }
+
+        // Initial load
+        loadProducts();
+
+        function attachBuyButtonListeners() {
+            const buyButtons = document.querySelectorAll('.add-to-cart');
+            const modal = document.getElementById('contactModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const productNameInput = document.getElementById('productName');
+
+            buyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const productCard = button.closest('.product-card');
+                    const productName = productCard.querySelector('h3').textContent;
+                    productNameInput.value = productName;
+                    modal.style.display = 'flex';
+                });
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

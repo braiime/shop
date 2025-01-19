@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S shop - Admin</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Add login screen -->
+    <div id="loginScreen" class="admin-login">
+        <div class="login-container">
+            <h2>تسجيل الدخول للوحة التحكم</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="password" id="adminPassword" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="submit-btn">دخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hide admin panel initially -->
+    <div id="adminPanel" class="admin-panel" style="display: none;">
+        <h1>إدارة المنتجات</h1>
+        <form id="productForm">
+            <div class="form-group">
+                <input type="text" id="title" placeholder="اسم المنتج" required>
+            </div>
+            <div class="form-group">
+                <input type="number" id="price" placeholder="السعر" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="image" placeholder="رابط الصورة" required>
+            </div>
+            <button type="submit" class="submit-btn">إضافة منتج</button>
+        </form>
+
+        <div id="productsList" class="products-list">
+            <!-- Products will be loaded here -->
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Add this before Firebase config
+        const loginScreen = document.getElementById('loginScreen');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === '123') {  // Your chosen admin password
+                loginScreen.style.display = 'none';
+                adminPanel.style.display = 'block';
+            } else {
+                alert('كلمة المرور غير صحيحة');
+            }
+        });
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcvNeUqTlVQa3OdaUICtjrX1rMb7SrJ_c",
+            authDomain: "fir-shop-63c93.firebaseapp.com",
+            projectId: "fir-shop-63c93",
+            storageBucket: "fir-shop-63c93.firebasestorage.app",
+            messagingSenderId: "1019998714130",
+            appId: "1:1019998714130:web:9a9b169fe5081d81af1bcb"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const productForm = document.getElementById('productForm');
+        const productsList = document.getElementById('productsList');
+
+        // Add product
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const product = {
+                title: document.getElementById('title').value,
+                price: parseFloat(document.getElementById('price').value),
+                image: document.getElementById('image').value
+            };
+
+            await db.collection('products').add(product);
+            productForm.reset();
+            loadProducts();
+        });
+
+        // Load products
+        async function loadProducts() {
+            const snapshot = await db.collection('products').get();
+            
+            productsList.innerHTML = snapshot.docs.map(doc => `
+                <div class="product-item">
+                    <img src="${doc.data().image}" alt="${doc.data().title}">
+                    <h3>${doc.data().title}</h3>
+                    <p>${doc.data().price} دج</p>
+                    <button onclick="deleteProduct('${doc.id}')" class="delete-btn">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        // Delete product
+        async function deleteProduct(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                await db.collection('products').doc(id).delete();
+                loadProducts();
+            }
+        }
+
+        // Initial load
+        loadProducts();
+    </script>
+</body>
+</html> 
