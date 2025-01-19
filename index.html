@@ -29,30 +29,14 @@
         <section class="hero">
             <h1>مرحباً بكم في S shop</h1>
             <p>اكتشف منتجاتنا المميزة</p>
-            <button class="shop-now">تسوق الآن</button>
+            <button class="shop-now" onclick="scrollToProducts()">تسوق الآن</button>
         </section>
 
-        <section class="featured-products">
+        <section id="products" class="featured-products">
             <h2>المنتجات المميزة</h2>
             <div class="product-grid">
-                <div class="product-card">
-                    <img src="p1.jpg" alt="المنتج 1">
-                    <h3>المنتج 1</h3>
-                    <p>99.99 دج</p>
-                    <button class="add-to-cart">شراء</button>
-                </div>
-                <div class="product-card">
-                    <img src="p2.jpg" alt="المنتج 2">
-                    <h3>المنتج 2</h3>
-                    <p>79.99 دج</p>
-                    <button class="add-to-cart">شراء</button>
-                </div>
-                <div class="product-card">
-                    <img src="p3.jpg" alt="المنتج 3">
-                    <h3>المنتج 3</h3>
-                    <p>129.99 دج</p>
-                    <button class="add-to-cart">شراء</button>
-                </div>
+                <!-- Products will be loaded here from Firebase -->
+                <div class="loading">جاري تحميل المنتجات...</div>
             </div>
         </section>
     </main>
@@ -89,7 +73,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <script>
-        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDcvNeUqTlVQa3OdaUICtjrX1rMb7SrJ_c",
             authDomain: "fir-shop-63c93.firebaseapp.com",
@@ -99,29 +82,38 @@
             appId: "1:1019998714130:web:9a9b169fe5081d81af1bcb"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
         // Load products from Firebase
         async function loadProducts() {
             const productsDiv = document.querySelector('.product-grid');
-            const snapshot = await db.collection('products').get();
-            
-            productsDiv.innerHTML = snapshot.docs.map(doc => {
-                const product = doc.data();
-                return `
-                    <div class="product-card">
-                        <img src="${product.image}" alt="${product.title}">
-                        <h3>${product.title}</h3>
-                        <p>${product.price} دج</p>
-                        <button class="add-to-cart">شراء</button>
-                    </div>
-                `;
-            }).join('');
+            try {
+                const snapshot = await db.collection('products').get();
+                
+                if (snapshot.empty) {
+                    productsDiv.innerHTML = '<div class="no-products">لا توجد منتجات متاحة حالياً</div>';
+                    return;
+                }
 
-            // Reattach event listeners
-            attachBuyButtonListeners();
+                productsDiv.innerHTML = snapshot.docs.map(doc => {
+                    const product = doc.data();
+                    return `
+                        <div class="product-card">
+                            <img src="${product.image}" alt="${product.title}" onerror="this.src='https://via.placeholder.com/200x200?text=صورة+غير+متوفرة'">
+                            <h3>${product.title}</h3>
+                            <p>${product.price} دج</p>
+                            <button class="add-to-cart">شراء</button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Reattach event listeners
+                attachBuyButtonListeners();
+            } catch (error) {
+                console.error("Error loading products:", error);
+                productsDiv.innerHTML = '<div class="error">حدث خطأ في تحميل المنتجات</div>';
+            }
         }
 
         // Initial load
@@ -151,6 +143,10 @@
                     modal.style.display = 'none';
                 }
             });
+        }
+
+        function scrollToProducts() {
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
         }
     </script>
 </body>
